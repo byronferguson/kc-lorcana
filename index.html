@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KC Lorcana · The Weekly Inkwell</title>
+<meta name="description" content="Every weekly Disney Lorcana night in Kansas City on one page, with PlayHub links to find and enroll in each store's event.">
+<meta name="theme-color" content="#0a0f24">
+<meta name="color-scheme" content="light dark">
+<script>
+  // Apply a stored light/dark override before first paint. No stored value: follow the system.
+  try { document.querySelector('meta[name="color-scheme"]').content = localStorage.getItem("color-scheme") ?? "light dark"; } catch (e) {}
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpolygon points='16,1 29,8.5 29,23.5 16,31 3,23.5 3,8.5' fill='%23e8c26b'/%3E%3Cpath d='M16 7l2 7 7 2-7 2-2 7-2-7-7-2 7-2z' fill='%230a0f24'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    /* Official ink colors: the RGB ink icons in the Disney Lorcana Media Guide */
+    --amber: #f4b223;
+    --amethyst: #7c4182;
+    --emerald: #329044;
+    --ruby: #d50037;
+    --sapphire: #0093c9;
+    --steel: #97a3ae;
+
+    --font-display: "Cinzel Decorative", "Cinzel", Georgia, serif;
+    --font-head: "Cinzel", Georgia, "Times New Roman", serif;
+    --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    --radius: 18px;
+    --wrap: 1180px;
+  }
+
+  /* light-dark() picks the light or the dark value from the color-scheme of the element.
+     The <meta name="color-scheme"> holds the visitor's override; CSS follows it. */
+  :root {
+    color-scheme: light dark;
+    &:has(> head > meta[name="color-scheme"][content="dark"]) { color-scheme: dark; }
+    &:has(> head > meta[name="color-scheme"][content="light"]) { color-scheme: light; }
+
+    --bg: light-dark(#f7efdd, #0a0f24);
+    --bg-glow-1: light-dark(color-mix(in srgb, var(--amber) 16%, transparent), rgba(44, 62, 150, 0.55));
+    --bg-glow-2: light-dark(color-mix(in srgb, var(--amethyst) 12%, transparent), color-mix(in srgb, var(--amethyst) 22%, transparent));
+    --surface: light-dark(rgba(255, 251, 242, 0.9), rgba(19, 27, 62, 0.78));
+    --surface-solid: light-dark(#fffbf2, #131b3e);
+    --surface-2: light-dark(rgba(122, 82, 10, 0.06), rgba(255, 255, 255, 0.05));
+    --border: light-dark(rgba(146, 104, 31, 0.3), rgba(232, 194, 107, 0.26));
+    --hairline: light-dark(rgba(146, 104, 31, 0.2), rgba(232, 194, 107, 0.16));
+    --text: light-dark(#241f3a, #f4ecd8);
+    --muted: light-dark(#57516d, #b9b3cb);
+    --gold: light-dark(#93650f, #e8c26b);
+    --gold-strong: light-dark(#74500a, #f6d98e);
+    --title-grad: linear-gradient(180deg, light-dark(#a8761a, #fff6d8) 0%, light-dark(#7d5408, #f2cf7a) 50%, light-dark(#5c3d05, #c8912f) 100%);
+    --btn-grad: linear-gradient(180deg, light-dark(#f1c86a, #f8dd96) 0%, light-dark(#c9922c, #d9a945) 100%);
+    --btn-text: #1d1404;
+    --star: light-dark(rgba(185, 130, 30, 0.75), rgba(255, 255, 255, 0.9));
+    --star-dim: light-dark(rgba(185, 130, 30, 0.35), rgba(255, 255, 255, 0.45));
+    --shadow: 0 14px 40px light-dark(rgba(90, 64, 20, 0.14), rgba(0, 0, 0, 0.45));
+    --bar-bg: light-dark(rgba(247, 239, 221, 0.85), rgba(10, 15, 36, 0.78));
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, var(--bg-glow-1), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, var(--bg-glow-2), transparent 70%),
+      var(--bg);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color .4s ease, color .4s ease;
+  }
+  /* Star field / gold dust */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+      radial-gradient(1.2px 1.2px at 23px 41px, var(--star) 50%, transparent 52%),
+      radial-gradient(1px 1px at 143px 17px, var(--star-dim) 50%, transparent 52%),
+      radial-gradient(1.6px 1.6px at 211px 133px, var(--star) 50%, transparent 52%),
+      radial-gradient(1px 1px at 77px 187px, var(--star-dim) 50%, transparent 52%),
+      radial-gradient(1.3px 1.3px at 263px 77px, var(--star-dim) 50%, transparent 52%),
+      radial-gradient(1px 1px at 181px 241px, var(--star) 50%, transparent 52%);
+    background-size: 290px 270px;
+    opacity: .7;
+  }
+  a { color: var(--gold); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--gold-strong); }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: min(100% - 2.5rem, var(--wrap)); margin-inline: auto; }
+  .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  [hidden] { display: none !important; }
+  .icon { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .icon--fill { fill: currentColor; stroke: none; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    position: absolute; inset: 0 0 auto 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem clamp(1.25rem, 3vw, 2rem);
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: .55rem;
+    font-family: var(--font-head); font-weight: 700; letter-spacing: .08em;
+    color: var(--text); text-decoration: none; font-size: .95rem;
+  }
+  .brand .hex-mini {
+    width: 26px; height: 30px; display: grid; place-items: center;
+    background: var(--btn-grad);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    color: var(--btn-text);
+  }
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .5rem .9rem; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text); font: 700 .85rem var(--font-body); cursor: pointer;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .theme-toggle:hover { transform: translateY(-1px); border-color: var(--gold); }
+  .theme-toggle .icon { width: 1.15rem; height: 1.15rem; color: var(--gold); }
+  .theme-toggle__state { display: inline-flex; align-items: center; gap: .5rem; }
+  /* Show the state that is on screen. The CSS follows system changes without JS. */
+  :root:has(> head > meta[name="color-scheme"][content="light"]) .theme-toggle__state--dark,
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) .theme-toggle__state--light { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:has(> head > meta[name="color-scheme"][content="light dark"]) .theme-toggle__state--light { display: none; }
+  }
+  @media (prefers-color-scheme: light) {
+    :root:has(> head > meta[name="color-scheme"][content="light dark"]) .theme-toggle__state--dark { display: none; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    min-height: clamp(680px, 100svh, 1000px);
+    padding: clamp(5rem, 9vw, 6.5rem) 0 clamp(1.5rem, 4vw, 2.5rem);
+    text-align: center; color: var(--text);
+    color-scheme: dark; /* The hero art is a night sky, so the hero always uses the dark values */
+    background: var(--bg);
+    overflow: hidden; isolation: isolate;
+  }
+  .hero__photo {
+    position: absolute; inset: 0; z-index: -2;
+    width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%;
+  }
+  /* Darken the art behind the title, and fade the bottom into the page */
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 26%, rgba(6, 9, 23, .6), transparent 75%),
+      linear-gradient(180deg, rgba(6, 9, 23, .35) 0%, transparent 35%, transparent 70%, var(--bg) 100%);
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .6rem;
+    font-family: var(--font-head); font-weight: 600; font-size: clamp(.72rem, 1.6vw, .9rem);
+    letter-spacing: .32em; text-transform: uppercase; color: var(--gold);
+    margin: 0 0 .9rem;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: ""; width: clamp(18px, 6vw, 56px); height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold));
+  }
+  .eyebrow::after { transform: scaleX(-1); }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 8.5vw, 5.6rem);
+    line-height: 1.02; margin: 0;
+    background: var(--title-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 14px rgba(0, 0, 0, .7));
+  }
+  .hero h1 small {
+    display: block; font-family: var(--font-head); font-weight: 600;
+    font-size: .36em; letter-spacing: .28em; margin-top: .55em;
+  }
+  .hero__lede {
+    max-width: 40rem; margin: 1.2rem auto 0; padding-inline: 1.25rem;
+    font-size: clamp(1rem, 2.2vw, 1.15rem); color: var(--text);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, .85);
+  }
+  /* Pushes the panel to the bottom of the hero so the ink art shows around the title */
+  .hero__spacer { flex: 1 1 auto; min-height: clamp(48px, 8vw, 120px); }
+  .hero__credit {
+    align-self: stretch; margin: .9rem 0 0; padding-inline: 1.25rem;
+    text-align: right; font-size: .7rem; color: var(--muted); opacity: .8;
+  }
+  .hero__credit a { color: inherit; }
+
+  /* Tonight panel */
+  .tonight {
+    position: relative; text-align: left;
+    width: min(100% - 2.5rem, 44rem); margin: 0 auto; padding: 1.1rem 1.25rem 1.2rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .tonight__label {
+    font-family: var(--font-head); font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    font-size: .8rem; color: var(--gold); margin: 0 0 .5rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .tonight__label .dot {
+    width: .6rem; height: .6rem; border-radius: 50%; background: var(--ink, var(--gold));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ink, var(--gold)) 25%, transparent);
+  }
+  .tonight ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+  .tonight li { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 1rem; }
+  .tonight li a { font-weight: 800; text-decoration: none; }
+  .tonight li a:hover { text-decoration: underline; }
+  .tonight li span { color: var(--muted); font-size: .92rem; }
+  .tonight p { margin: 0; color: var(--muted); }
+
+  /* ---------- Day bar (sticky) ---------- */
+  .daybar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--bar-bg);
+    border-block: 1px solid var(--hairline);
+    backdrop-filter: blur(12px) saturate(1.2); -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  }
+  .daybar ul {
+    list-style: none; margin: 0 auto; padding: .6rem 1rem;
+    display: flex; gap: .4rem; justify-content: center;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .daybar ul::-webkit-scrollbar { display: none; }
+  .daybar a {
+    display: inline-flex; align-items: center; gap: .45rem;
+    padding: .42rem .85rem; border-radius: 999px;
+    font-family: var(--font-head); font-weight: 700; font-size: .82rem; letter-spacing: .06em;
+    color: var(--text); text-decoration: none; white-space: nowrap;
+    border: 1px solid transparent;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .daybar a::before {
+    content: ""; width: .55rem; height: .65rem; background: var(--ink);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  .daybar a:hover { background: var(--surface-2); border-color: var(--hairline); }
+  .daybar a.is-today { border-color: var(--gold); background: var(--surface-2); }
+
+  /* ---------- Sections ---------- */
+  main { padding-bottom: 3rem; }
+  .section { padding: clamp(2.5rem, 6vw, 4.5rem) 0 0; }
+  .section__head { text-align: center; margin-bottom: 2rem; }
+  .section__head h2 {
+    font-family: var(--font-head); font-weight: 700;
+    font-size: clamp(1.7rem, 4.4vw, 2.6rem); margin: 0; letter-spacing: .04em;
+  }
+  .flourish {
+    display: flex; align-items: center; justify-content: center; gap: .7rem;
+    color: var(--gold); margin: .6rem auto 0;
+  }
+  .flourish::before, .flourish::after {
+    content: ""; height: 1px; width: min(120px, 22vw);
+    background: linear-gradient(90deg, transparent, currentColor);
+  }
+  .flourish::after { transform: scaleX(-1); }
+  .flourish .icon { width: .9rem; height: .9rem; }
+  .section__head p { max-width: 42rem; margin: 1rem auto 0; color: var(--muted); }
+
+  /* Filters */
+  .filters {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin: 0 0 2.25rem;
+  }
+  .filters button {
+    font: 700 .9rem var(--font-body); color: var(--text);
+    padding: .5rem 1.1rem; border-radius: 999px; cursor: pointer;
+    background: var(--surface); border: 1px solid var(--border);
+    transition: transform .15s ease, background .2s ease, border-color .2s ease;
+  }
+  .filters button:hover { transform: translateY(-1px); border-color: var(--gold); }
+  .filters button[aria-pressed="true"] { background: var(--btn-grad); color: var(--btn-text); border-color: transparent; }
+
+  /* ---------- Day ---------- */
+  .days { display: grid; gap: clamp(1.75rem, 4vw, 2.75rem); }
+  .day {
+    display: grid; grid-template-columns: 210px 1fr; gap: 1.5rem; align-items: start;
+  }
+  .day__head {
+    position: sticky; top: 72px;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: .55rem;
+    padding-top: .25rem;
+  }
+  .hex {
+    position: relative; width: 92px; height: 104px;
+    display: grid; place-items: center;
+    background: var(--btn-grad);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  .hex::before {
+    content: ""; position: absolute; inset: 5px;
+    background:
+      radial-gradient(circle at 35% 28%, rgba(255, 255, 255, .45), transparent 45%),
+      var(--ink-fill, var(--ink));
+    clip-path: inherit;
+  }
+  .hex span {
+    position: relative; font-family: var(--font-head); font-weight: 700; font-size: 1.3rem;
+    letter-spacing: .06em; color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .45);
+  }
+  .day__head h3 {
+    font-family: var(--font-head); font-weight: 700; font-size: 1.45rem; margin: 0; letter-spacing: .05em;
+  }
+  .day__ink {
+    margin: -.4rem 0 0; font-size: .78rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .badge-today {
+    display: none;
+    font: 800 .72rem var(--font-body); letter-spacing: .14em; text-transform: uppercase;
+    padding: .25rem .7rem; border-radius: 999px;
+    background: var(--btn-grad); color: var(--btn-text);
+  }
+  .day.is-today .badge-today { display: inline-block; }
+  .day.is-today .hex { animation: glow 2.6s ease-in-out infinite; }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+    50% { filter: drop-shadow(0 0 16px var(--gold)); }
+  }
+  .day__events {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 1.1rem;
+  }
+  .day__empty {
+    grid-column: 1 / -1; margin: 0; padding: 1rem 1.2rem; border-radius: var(--radius);
+    border: 1px dashed var(--border); color: var(--muted); font-style: italic;
+  }
+
+  /* ---------- Event card ---------- */
+  .event {
+    position: relative; display: flex; flex-direction: column; gap: .8rem;
+    padding: 1.45rem 1.35rem 1.2rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .event::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 6px;
+    background: linear-gradient(90deg, var(--ink), var(--gold) 50%, var(--ink));
+  }
+  .event::after {
+    content: ""; position: absolute; inset: 12px 7px 7px; border-radius: calc(var(--radius) - 7px);
+    border: 1px solid var(--hairline); pointer-events: none;
+  }
+  .event:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--ink) 60%, var(--gold)); }
+  .day.is-today .event { border-color: color-mix(in srgb, var(--gold) 70%, transparent); }
+  .event header { display: grid; gap: .1rem; }
+  .event h4 {
+    margin: 0; font-family: var(--font-head); font-weight: 700; font-size: 1.22rem; line-height: 1.25;
+  }
+  .event h4 small { font-family: var(--font-body); font-weight: 700; font-size: .8rem; color: var(--muted); letter-spacing: .02em; }
+  .event__title { margin: 0; color: var(--gold); font-weight: 700; font-size: .95rem; }
+
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .tag {
+    --c: var(--steel);
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .18rem .65rem; border-radius: 999px;
+    font-size: .78rem; font-weight: 800; letter-spacing: .02em;
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+  }
+  .tag::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: var(--c); }
+  .tag--competitive { --c: var(--ruby); }
+  .tag--casual { --c: var(--emerald); }
+  .tag--theme { --c: var(--amethyst); }
+  .tag--coconut { --c: var(--amber); }
+  .tag--ladies { --c: #d65a9c; }
+  .tag--late { --c: var(--sapphire); }
+  .tag--varies { --c: var(--steel); }
+
+  .meta { margin: 0; display: grid; gap: .35rem; font-size: .93rem; }
+  .meta div { display: flex; align-items: flex-start; gap: .55rem; }
+  .meta dt { display: flex; align-items: center; padding-top: .2rem; color: var(--gold); }
+  .meta dd { margin: 0; }
+  .meta dd a { display: block; color: var(--muted); font-size: .88rem; }
+  .meta dd a:hover { color: var(--gold-strong); }
+  .meta .muted { color: var(--muted); }
+
+  .flavor {
+    position: relative; margin: .2rem 0 0; padding-top: .85rem;
+    font-style: italic; color: var(--muted); font-size: .95rem;
+  }
+  .flavor::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+  .flavor::after {
+    content: "✦"; content: "✦" / ""; /* Decorative: screen readers skip it */
+    position: absolute; top: -.62rem; left: 50%; transform: translateX(-50%);
+    font-style: normal; font-size: .75rem; color: var(--gold);
+    background: var(--surface-solid); padding: 0 .4rem; border-radius: 4px;
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: auto; padding-top: .35rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    padding: .58rem 1rem; border-radius: 12px;
+    font: 800 .88rem var(--font-body); text-decoration: none; white-space: nowrap;
+    color: var(--text); background: var(--surface-2); border: 1px solid var(--border);
+    transition: transform .15s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .btn:hover { transform: translateY(-1px); border-color: var(--gold); color: var(--text); }
+  .btn--primary {
+    flex: 1 1 auto;
+    background: var(--btn-grad); color: var(--btn-text); border-color: transparent;
+    box-shadow: 0 6px 18px rgba(217, 169, 69, .28);
+  }
+  .btn--primary:hover { color: var(--btn-text); box-shadow: 0 8px 24px rgba(217, 169, 69, .42); }
+  .btn .icon { width: 1rem; height: 1rem; }
+
+  /* Saturday card */
+  .event--wide { grid-column: 1 / -1; }
+  .store-chips { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; margin: 0; padding: 0; }
+  .store-chips a {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .8rem; border-radius: 999px; font-weight: 700; font-size: .87rem;
+    text-decoration: none; color: var(--text);
+    background: var(--surface-2); border: 1px solid var(--border);
+  }
+  .store-chips a:hover { border-color: var(--gold); }
+  .store-chips .icon { width: .85rem; height: .85rem; color: var(--gold); }
+
+  /* ---------- Stores ---------- */
+  .stores {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); gap: 1rem;
+  }
+  .store {
+    display: flex; flex-direction: column; gap: .55rem;
+    padding: 1.2rem 1.2rem 1.1rem; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .store h3 { margin: 0; font-family: var(--font-head); font-size: 1.08rem; line-height: 1.3; }
+  .store h3 small { display: block; font-family: var(--font-body); font-size: .8rem; color: var(--muted); font-weight: 700; }
+  .store address { font-style: normal; font-size: .9rem; }
+  .store address a { display: inline-flex; gap: .4rem; color: var(--muted); }
+  .store address a:hover { color: var(--gold-strong); }
+  .store address .icon { margin-top: .25rem; color: var(--gold); }
+  .store__days { display: flex; flex-wrap: wrap; gap: .3rem; list-style: none; margin: 0; padding: 0; }
+  .store__days li {
+    font: 800 .72rem var(--font-head); letter-spacing: .08em;
+    padding: .2rem .5rem; border-radius: 6px; color: #fff;
+    background: var(--ink); text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  }
+  .store .actions { padding-top: .5rem; }
+  .store .btn { padding: .45rem .75rem; font-size: .82rem; }
+
+  /* ---------- Discord ---------- */
+  .kitchen {
+    position: relative; overflow: hidden;
+    display: grid; grid-template-columns: 1fr auto; gap: clamp(1.5rem, 4vw, 3rem); align-items: center;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    border-radius: calc(var(--radius) + 6px);
+    background:
+      radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--amethyst) 30%, transparent), transparent 55%),
+      radial-gradient(circle at 100% 100%, color-mix(in srgb, var(--sapphire) 28%, transparent), transparent 55%),
+      var(--surface);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+  }
+  .kitchen h2 {
+    margin: 0; font-family: var(--font-head); font-weight: 700; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15;
+  }
+  .kitchen p { color: var(--muted); max-width: 34rem; }
+  .kitchen .btn--primary { flex: 0 0 auto; padding: .8rem 1.4rem; font-size: 1rem; }
+  .kitchen__url { display: block; margin-top: .8rem; font-size: .9rem; color: var(--muted); word-break: break-all; }
+  .qr-frame {
+    margin: 0; text-align: center;
+    padding: .8rem; border-radius: 20px; background: var(--btn-grad);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  }
+  .qr-frame svg { display: block; width: clamp(150px, 22vw, 200px); height: auto; border-radius: 12px; }
+  .qr-frame figcaption { margin-top: .5rem; font: 800 .75rem var(--font-head); letter-spacing: .14em; text-transform: uppercase; color: var(--btn-text); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: clamp(3rem, 7vw, 5rem); padding: 2rem 0 2.5rem;
+    border-top: 1px solid var(--hairline); text-align: center; color: var(--muted); font-size: .88rem;
+  }
+  footer p { margin: .35rem auto; max-width: 48rem; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 860px) {
+    .day { grid-template-columns: 1fr; gap: 1rem; }
+    .day__head {
+      position: static; flex-direction: row; text-align: left; flex-wrap: wrap; gap: .9rem;
+    }
+    .day__head .hex { width: 58px; height: 66px; }
+    .day__head .hex span { font-size: .95rem; }
+    .day__head h3 { font-size: 1.3rem; }
+    .day__ink { margin: 0; }
+    .day__titles { display: grid; }
+    .badge-today { margin-left: auto; }
+    .daybar ul { justify-content: flex-start; }
+  }
+  @media (max-width: 640px) {
+    .kitchen { grid-template-columns: 1fr; text-align: center; }
+    .kitchen p { margin-inline: auto; }
+    .qr-frame { justify-self: center; }
+    .brand span:last-child { display: none; }
+    .eyebrow::before, .eyebrow::after { display: none; }
+    .hero { min-height: 0; }
+  }
+  @media (max-width: 420px) {
+    .actions .btn { flex: 1 1 auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/><path d="M14 7v10" stroke-dasharray="2 2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-5 4v-4H4z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 1.5l2.4 8.1 8.1 2.4-8.1 2.4-2.4 8.1-2.4-8.1L1.5 12l8.1-2.4z"/></symbol>
+</svg>
+
+<header class="hero" id="top">
+  <img class="hero__photo" alt="" fetchpriority="high" width="2318" height="2318"
+       src="assets/lorcana-evergreen-1600.webp"
+       srcset="assets/lorcana-evergreen-1600.webp 1600w, assets/lorcana-evergreen-2318.webp 2318w"
+       sizes="100vw">
+  <div class="topbar">
+    <a class="brand" href="#top">
+      <span class="hex-mini" aria-hidden="true"><svg class="icon icon--fill" style="width:14px;height:14px"><use href="#i-sparkle"/></svg></span>
+      <span>KC LORCANA</span>
+    </a>
+    <button class="theme-toggle" type="button" id="themeToggle">
+      <span class="theme-toggle__state theme-toggle__state--light">
+        <svg class="icon" aria-hidden="true"><use href="#i-sun"/></svg>
+        <span aria-hidden="true">Light</span><span class="visually-hidden">Switch to dark theme</span>
+      </span>
+      <span class="theme-toggle__state theme-toggle__state--dark">
+        <svg class="icon" aria-hidden="true"><use href="#i-moon"/></svg>
+        <span aria-hidden="true">Dark</span><span class="visually-hidden">Switch to light theme</span>
+      </span>
+    </button>
+  </div>
+
+  <p class="eyebrow">The Illumineers' Weekly Calendar</p>
+  <h1>Kansas City<br>Lorcana<small>The Weekly Inkwell</small></h1>
+  <p class="hero__lede">Every weekly Disney Lorcana night in the metro, on one page. Pick a night, open the store's PlayHub page, and enroll in this week's event.</p>
+
+  <div class="hero__spacer"></div>
+
+  <div class="tonight" id="tonight" aria-live="polite">
+    <p class="tonight__label"><span class="dot"></span><span>Tonight in KC</span></p>
+    <p>Loading the schedule…</p>
+  </div>
+  <p class="hero__credit">Art: Disney Lorcana Evergreen Background © Disney, from the <a href="https://brand.ravensburger-group.com/d/e1vhRSQ7WeNy" target="_blank" rel="noopener">Disney Lorcana Media Guide</a></p>
+</header>
+
+<nav class="daybar" aria-label="Jump to a day">
+  <ul id="dayNav"></ul>
+</nav>
+
+<main>
+  <section class="section wrap" id="schedule" aria-labelledby="schedule-title">
+    <div class="section__head">
+      <h2 id="schedule-title">The Weekly Schedule</h2>
+      <div class="flourish" aria-hidden="true"><svg class="icon icon--fill"><use href="#i-sparkle"/></svg></div>
+      <p>Start times and entry fees come from each store's PlayHub listings (November 2026). All times are Central. Stores can change details, so check PlayHub before you go.</p>
+    </div>
+
+    <div class="filters" role="group" aria-label="Filter events by type">
+      <button type="button" data-filter="all" aria-pressed="true">All events</button>
+      <button type="button" data-filter="competitive" aria-pressed="false">Competitive</button>
+      <button type="button" data-filter="casual" aria-pressed="false">Casual</button>
+    </div>
+
+    <div class="days" id="days">
+      <noscript><p class="day__empty">This page needs JavaScript to show the schedule. Find events on <a href="https://tcg.ravensburgerplay.com/events">Ravensburger PlayHub</a>.</p></noscript>
+    </div>
+  </section>
+
+  <section class="section wrap" id="stores" aria-labelledby="stores-title">
+    <div class="section__head">
+      <h2 id="stores-title">Where to Play</h2>
+      <div class="flourish" aria-hidden="true"><svg class="icon icon--fill"><use href="#i-sparkle"/></svg></div>
+      <p>Every store on the schedule, with its PlayHub page, its website, and directions.</p>
+    </div>
+    <div class="stores" id="storeList"></div>
+  </section>
+
+  <section class="section wrap" id="discord" aria-labelledby="discord-title">
+    <div class="kitchen">
+      <div>
+        <p class="eyebrow" style="margin-bottom:.6rem">Community</p>
+        <h2 id="discord-title">Join The Illumineer's Kitchen</h2>
+        <p>The KC Lorcana Discord. Find decks to test, trade cards, ask about the meta, and hear about Saturday events and schedule changes first.</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="https://discord.gg/9k8xypBYe" target="_blank" rel="noopener">
+            <svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg>
+            Join the Discord
+          </a>
+        </div>
+        <span class="kitchen__url">discord.gg/9k8xypBYe</span>
+      </div>
+      <figure class="qr-frame">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" role="img" aria-label="QR code that opens the Illumineer's Kitchen Discord invite at discord.gg/9k8xypBYe"><path fill="#fff" d="M0 0h33v33h-33z"/><path stroke="#000" d="M2 2.5h7m3 0h4m1 0h1m2 0h3m1 0h7m-29 1h1m5 0h1m1 0h2m4 0h1m7 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m4 0h1m4 0h2m1 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h4m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m3 0h1m2 0h3m2 0h3m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h1m2 0h1m4 0h2m1 0h1m-20 1h3m1 0h2m2 0h3m1 0h1m1 0h2m3 0h1m5 0h2m-27 1h5m2 0h1m2 0h1m1 0h4m1 0h1m1 0h1m1 0h4m2 0h1m-29 1h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h2m1 0h1m1 0h1m-28 1h1m1 0h1m2 0h1m2 0h1m1 0h4m4 0h1m5 0h2m2 0h1m-24 1h2m6 0h2m1 0h2m3 0h1m1 0h1m2 0h3m-27 1h3m2 0h2m2 0h2m4 0h1m1 0h1m2 0h2m1 0h2m1 0h1m-29 1h2m4 0h4m2 0h4m3 0h1m3 0h3m1 0h2m-27 1h1m1 0h1m2 0h2m2 0h1m6 0h1m1 0h2m2 0h2m2 0h1m-29 1h3m1 0h1m1 0h5m1 0h1m1 0h1m2 0h1m2 0h2m2 0h2m1 0h1m-27 1h1m2 0h1m3 0h1m2 0h2m4 0h1m1 0h3m4 0h1m-27 1h1m1 0h3m1 0h2m2 0h1m2 0h1m3 0h1m4 0h2m1 0h2m-25 1h1m1 0h1m6 0h1m1 0h6m1 0h5m1 0h1m-26 1h1m1 0h1m1 0h3m4 0h1m1 0h11m1 0h2m-20 1h1m1 0h5m2 0h1m2 0h1m3 0h2m1 0h2m-29 1h7m2 0h1m1 0h4m3 0h3m1 0h1m1 0h1m1 0h2m-28 1h1m5 0h1m1 0h1m1 0h2m1 0h1m3 0h1m2 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m2 0h1m1 0h2m3 0h7m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h3m2 0h1m3 0h1m1 0h1m4 0h1m2 0h1m-28 1h1m1 0h3m1 0h1m1 0h1m2 0h4m2 0h1m2 0h1m2 0h1m4 0h1m-29 1h1m5 0h1m1 0h8m2 0h5m1 0h2m1 0h1m-28 1h7m3 0h1m1 0h2m4 0h4m1 0h1m3 0h1"/></svg>
+        <figcaption>Scan to join</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>A fan-made community page for Kansas City Lorcana players. It is not affiliated with Disney or Ravensburger.</p>
+    <p>Disney Lorcana is a trademark of Disney. Event times and fees come from <a href="https://tcg.ravensburgerplay.com/events" target="_blank" rel="noopener">Ravensburger PlayHub</a> listings and can change.</p>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================================
+   SCHEDULE DATA. Edit this block to update the page.
+   - STORES: one entry for each store. `playhub` is the ID at the end of the
+     store's PlayHub URL: https://tcg.ravensburgerplay.com/stores/<playhub>
+   - DAYS: one entry for each weekday. `events` refer to STORES by key.
+     Tags: competitive, casual, theme, coconut, ladies, late, varies.
+     The Competitive and Casual filters use the competitive and casual tags.
+   ========================================================================== */
+const STORES = {
+  spankys:    { name: "Spanky's Card Shop", area: "South KC, MO", address: "611 E 99th St, Kansas City, MO 64131", playhub: "70778f88-5cb0-430b-951c-c9d801aeedb1", site: "https://spankyscardshop.com/" },
+  pulp:       { name: "Pulp Fiction Comics & Games", area: "Lee's Summit, MO", address: "836 SW Blue Pkwy, Lee's Summit, MO 64063", playhub: "fa65cd24-acf7-4ee9-ab1e-a8e4318144ad" },
+  larrys:     { name: "Larry's Game Store", area: "Olathe, KS", address: "659 N Somerset Ter, Olathe, KS 66062", playhub: "a9b2a155-6c96-4617-b6a7-d87f8c37da6c", site: "https://www.larrysgamestore.com/" },
+  cache:      { name: "Collector's Cache", area: "Lenexa, KS", address: "13354 College Blvd, Lenexa, KS 66210", playhub: "a18440a0-b87f-4b02-b4d0-19afc0edf4dd", site: "https://www.collectorscache.com/" },
+  mbgMission: { name: "Mission: Board Games", branch: "Mission", area: "Mission, KS", address: "5606A Johnson Dr, Mission, KS 66202", playhub: "37b1cbcd-c36c-417e-8f9b-215bfcc7cea2", site: "https://www.missionboardgames.com/" },
+  mbgNorth:   { name: "Mission: Board Games", branch: "Northland", area: "Northland, KC MO", address: "7751 NW Prairie View Rd, Kansas City, MO 64151", playhub: "bbcc4dd0-fe4c-4b99-8f06-ecd16f5c2b6e", site: "https://www.missionboardgames.com/" },
+  levelOne:   { name: "Level One Game Shop", area: "Downtown KC, MO", address: "400 Grand Blvd, Suite 420, Kansas City, MO 64106", playhub: "16183b09-52a2-408c-b511-a4a66b96c773", site: "https://levelonegameshop.com/" },
+  geekery:    { name: "The Geekery", area: "Shawnee, KS", address: "12616 W 62nd Ter, Suite 117, Shawnee, KS 66216", playhub: "2213a259-2f06-4a12-a878-f6513e6521b3", site: "https://www.geekery.biz/" },
+  tcgFamily:  { name: "TCG Family", area: "Belton, MO", address: "105 Wilbur Parish Cir, Belton, MO 64012", playhub: "81956324-acbb-4efa-ab54-7877701fc2e3", site: "https://www.facebook.com/TCGFamilyCardShop" },
+  gameCafe:   { name: "Game Cafe", area: "Independence, MO", address: "107 W Lexington Ave, Independence, MO 64050", playhub: "208cd839-30b1-4501-adf7-753ec77f631e", site: "https://www.playgamecafe.com/" },
+};
+
+const DAYS = [
+  { key: "monday", short: "Mon", ink: "Amber", color: "var(--amber)", events: [
+    { store: "spankys", title: "Lorcana Ladies Night", tags: ["casual", "ladies"], time: "6:00 PM", fee: "Free",
+      note: "Ladies night. Casual play." },
+    { store: "pulp", title: "Lorcana League Casual Play", tags: ["casual", "theme"], time: "5:00 PM", fee: "Free",
+      note: "Casual play with a theme or event that runs all month." },
+  ]},
+  { key: "tuesday", short: "Tue", ink: "Amethyst", color: "var(--amethyst)", events: [
+    { store: "larrys", title: "Lorcana Locals + Casual Night", tags: ["competitive", "casual"], time: "6:30 PM", fee: "$5 Locals · Casual free",
+      note: "A competitive Locals and a casual table run on the same night." },
+    { store: "cache", title: "Coconut Tuesday", tags: ["casual", "coconut"], time: "5:30 PM", fee: "Free",
+      note: "Casual play in the Coconut format." },
+  ]},
+  { key: "wednesday", short: "Wed", ink: "Emerald", color: "var(--emerald)", events: [
+    { store: "spankys", title: "Wednesday Night Lorcana", tags: ["competitive"], time: "6:30 PM", fee: "$10",
+      note: "Competitive night." },
+    { store: "mbgMission", title: "Weekly Casual Play", tags: ["casual", "theme"], time: "6:00 PM", fee: "Free",
+      note: "Casual play and theme events." },
+  ]},
+  { key: "thursday", short: "Thu", ink: "Ruby", color: "var(--ruby)", events: [
+    { store: "cache", title: "Weekly Lorcana Tournament", tags: ["competitive"], time: "6:30 PM", fee: "$5",
+      note: "Competitive night." },
+    { store: "mbgNorth", title: "Thursday Casual Play", tags: ["casual"], time: "6:00 PM", fee: "Free",
+      note: "Casual play in the Northland." },
+  ]},
+  { key: "friday", short: "Fri", ink: "Sapphire", color: "var(--sapphire)", events: [
+    { store: "levelOne", title: "Friday Competitive", tags: ["competitive"],
+      note: "Competitive night downtown." },
+    { store: "geekery", title: "Core Constructed, Fridays", tags: ["competitive", "late"], time: "6:30 PM", fee: "$10",
+      note: "We stay late, to midnight or 1 AM, to jam games and talk meta." },
+  ]},
+  { key: "saturday", short: "Sat", ink: "Steel", color: "var(--steel)", various: true, events: [] },
+  { key: "sunday", short: "Sun", ink: "All Inks", color: "var(--gold)",
+    fill: "conic-gradient(from 200deg, var(--amber), var(--amethyst), var(--emerald), var(--ruby), var(--sapphire), var(--steel), var(--amber))",
+    events: [
+    { store: "tcgFamily", title: "Sunday Lorcana", tags: ["competitive", "casual", "varies"],
+      note: "Competitive or casual, depending on attendance." },
+    { store: "gameCafe", title: "Sunday Lorcana", tags: ["competitive", "casual", "varies"],
+      note: "Competitive or casual, depending on attendance." },
+  ]},
+];
+
+const TAG_LABELS = {
+  competitive: "Competitive", casual: "Casual", theme: "Theme events", coconut: "Coconut format",
+  ladies: "Ladies Night", late: "Late night", varies: "Depends on turnout",
+};
+
+/* ========================================================================== */
+
+const playhubUrl = (s) => `https://tcg.ravensburgerplay.com/stores/${s.playhub}`;
+// Driving directions from the visitor's location: Apple Maps on Apple devices, Google Maps elsewhere.
+const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+const directionsUrl = (s) => isApple
+  ? `https://maps.apple.com/?daddr=${encodeURIComponent(s.address)}&dirflg=d`
+  : `https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=${encodeURIComponent(`${s.name}, ${s.address}`)}`;
+const storeLabel = (s) => (s.branch ? `${s.name} (${s.branch})` : s.name);
+const icon = (id) => `<svg class="icon" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const sparkle = `<svg class="icon icon--fill" aria-hidden="true"><use href="#i-sparkle"/></svg>`;
+const capitalize = (s) => s[0].toUpperCase() + s.slice(1);
+
+function eventCard(ev) {
+  const s = STORES[ev.store];
+  const tags = ev.tags.map((t) => `<li class="tag tag--${t}">${TAG_LABELS[t]}</li>`).join("");
+  const time = ev.time
+    ? `${ev.time} <span class="muted">CT</span>`
+    : `<span class="muted">Check PlayHub for this week's start time</span>`;
+  const fee = ev.fee ? `<div><dt>${icon("ticket")}<span class="visually-hidden">Entry</span></dt><dd>${ev.fee}</dd></div>` : "";
+  return `
+    <article class="event" data-tags="${ev.tags.join(" ")}">
+      <header>
+        <h4>${s.name}${s.branch ? ` <small>· ${s.branch}</small>` : ""}</h4>
+        <p class="event__title">${ev.title}</p>
+      </header>
+      <ul class="tags" aria-label="Event type">${tags}</ul>
+      <dl class="meta">
+        <div><dt>${icon("clock")}<span class="visually-hidden">Time</span></dt><dd>${time}</dd></div>
+        ${fee}
+        <div><dt>${icon("pin")}<span class="visually-hidden">Where</span></dt><dd>${s.area}
+          <a href="${directionsUrl(s)}" target="_blank" rel="noopener" aria-label="Driving directions to ${s.address}">${s.address}</a></dd></div>
+      </dl>
+      ${ev.note ? `<p class="flavor">${ev.note}</p>` : ""}
+      <div class="actions">
+        <a class="btn btn--primary" href="${playhubUrl(s)}" target="_blank" rel="noopener"
+           aria-label="Enroll on PlayHub: ${storeLabel(s)}">${icon("external")} Enroll on PlayHub</a>
+        <a class="btn" href="${directionsUrl(s)}" target="_blank" rel="noopener"
+           aria-label="Directions to ${storeLabel(s)}">${icon("pin")} Directions</a>
+      </div>
+    </article>`;
+}
+
+function saturdayCard() {
+  const chips = Object.values(STORES)
+    .map((s) => `<li><a href="${playhubUrl(s)}" target="_blank" rel="noopener">${icon("external")}${storeLabel(s)}</a></li>`)
+    .join("");
+  return `
+    <article class="event event--wide" data-tags="competitive casual">
+      <header>
+        <h4>Various stores</h4>
+        <p class="event__title">Saturday events change from week to week</p>
+      </header>
+      <ul class="tags" aria-label="Event type"><li class="tag tag--competitive">Competitive</li><li class="tag tag--casual">Casual</li><li class="tag tag--theme">Special events</li></ul>
+      <p class="flavor">Saturdays bring prereleases, challenges, and store specials. Open a store's PlayHub page to see what it runs this Saturday.</p>
+      <ul class="store-chips" aria-label="Store PlayHub pages">${chips}</ul>
+      <div class="actions">
+        <a class="btn btn--primary" href="https://tcg.ravensburgerplay.com/events" target="_blank" rel="noopener">${icon("external")} Search all events on PlayHub</a>
+        <a class="btn" href="#discord">${icon("chat")} Ask in the Discord</a>
+      </div>
+    </article>`;
+}
+
+function render() {
+  const daysEl = document.getElementById("days");
+  daysEl.innerHTML = DAYS.map((d) => `
+    <section class="day" id="${d.key}" style="--ink:${d.color};${d.fill ? `--ink-fill:${d.fill}` : ""}" aria-labelledby="${d.key}-title">
+      <div class="day__head">
+        <div class="hex" aria-hidden="true"><span>${d.short}</span></div>
+        <div class="day__titles">
+          <h3 id="${d.key}-title">${capitalize(d.key)}</h3>
+          <p class="day__ink">${d.ink}</p>
+        </div>
+        <span class="badge-today">Today</span>
+      </div>
+      <div class="day__events">
+        ${d.various ? saturdayCard() : d.events.map(eventCard).join("")}
+        <p class="day__empty" hidden>No events of this type on ${capitalize(d.key)}. Choose All events to see the full night.</p>
+      </div>
+    </section>`).join("");
+
+  document.getElementById("dayNav").innerHTML = DAYS.map((d) =>
+    `<li><a href="#${d.key}" data-day="${d.key}" style="--ink:${d.color}">${d.short}</a></li>`).join("");
+
+  // Store directory: list the days each store appears on the schedule.
+  const daysByStore = {};
+  for (const d of DAYS) for (const ev of d.events) {
+    (daysByStore[ev.store] ||= new Set()).add(d);
+  }
+  document.getElementById("storeList").innerHTML = Object.entries(STORES).map(([key, s]) => {
+    const days = [...(daysByStore[key] || [])]
+      .map((d) => `<li style="--ink:${d.color}">${d.short}</li>`).join("");
+    return `
+      <article class="store">
+        <h3>${s.name}${s.branch ? `<small>${s.branch}</small>` : ""}</h3>
+        <address><a href="${directionsUrl(s)}" target="_blank" rel="noopener" aria-label="Driving directions to ${s.address}">${icon("pin")}<span>${s.address}</span></a></address>
+        <ul class="store__days" aria-label="Weekly nights">${days}</ul>
+        <div class="actions">
+          <a class="btn btn--primary" href="${playhubUrl(s)}" target="_blank" rel="noopener" aria-label="PlayHub page: ${storeLabel(s)}">${icon("external")} PlayHub</a>
+          ${s.site ? `<a class="btn" href="${s.site}" target="_blank" rel="noopener" aria-label="Website: ${storeLabel(s)}">${icon("globe")} Website</a>` : ""}
+          <a class="btn" href="${directionsUrl(s)}" target="_blank" rel="noopener" aria-label="Directions to ${storeLabel(s)}">${icon("pin")} Directions</a>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function markToday() {
+  // Use Kansas City time, so the highlight is correct for visitors in any time zone.
+  const today = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: "America/Chicago" })
+    .format(new Date()).toLowerCase();
+  const day = DAYS.find((d) => d.key === today);
+  document.getElementById(today)?.classList.add("is-today");
+  document.querySelector(`.daybar a[data-day="${today}"]`)?.classList.add("is-today");
+
+  const panel = document.getElementById("tonight");
+  panel.style.setProperty("--ink", day.color);
+  const label = `<p class="tonight__label"><span class="dot"></span><span>Tonight in KC · ${capitalize(today)}</span></p>`;
+  if (day.various) {
+    panel.innerHTML = `${label}<p>Saturday events change by store. <a href="#saturday">See the Saturday options</a> or <a href="https://tcg.ravensburgerplay.com/events" target="_blank" rel="noopener">search PlayHub</a>.</p>`;
+    return;
+  }
+  const items = day.events.map((ev) => {
+    const s = STORES[ev.store];
+    const kind = ev.tags.filter((t) => t === "competitive" || t === "casual").map((t) => TAG_LABELS[t]).join(" / ");
+    return `<li><a href="${playhubUrl(s)}" target="_blank" rel="noopener">${storeLabel(s)}</a><span>${ev.time ? `${ev.time} · ` : ""}${kind}</span></li>`;
+  }).join("");
+  panel.innerHTML = `${label}<ul>${items}</ul>`;
+}
+
+function setupFilters() {
+  const buttons = document.querySelectorAll(".filters button");
+  buttons.forEach((btn) => btn.addEventListener("click", () => {
+    const filter = btn.dataset.filter;
+    buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+    document.querySelectorAll(".day").forEach((day) => {
+      let visible = 0;
+      day.querySelectorAll(".event").forEach((card) => {
+        const show = filter === "all" || card.dataset.tags.split(" ").includes(filter);
+        card.hidden = !show;
+        if (show) visible++;
+      });
+      day.querySelector(".day__empty").hidden = visible > 0;
+    });
+  }));
+}
+
+// Two-state light/dark toggle. "System" (no stored value) and the opposite of the system are the 2 states.
+function setupTheme() {
+  const KEY = "color-scheme";
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const systemScheme = () => (systemDark.matches ? "dark" : "light");
+  const renderedScheme = () => (meta.content === "light dark" ? systemScheme() : meta.content);
+
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const target = renderedScheme() === "dark" ? "light" : "dark";
+    // A target that matches the system undoes the override, so the page follows the system again.
+    const override = target === systemScheme() ? null : target;
+    try {
+      if (override) localStorage.setItem(KEY, override);
+      else localStorage.removeItem(KEY);
+    } catch (e) {}
+    meta.content = override ?? "light dark";
+  });
+
+  // Keep other open tabs of the page in sync.
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY || e.key === null) meta.content = e.newValue ?? "light dark";
+  });
+}
+
+render();
+markToday();
+setupFilters();
+setupTheme();
+</script>
+</body>
+</html>
